@@ -1,0 +1,270 @@
+
+Following steps are for installing hbase:
+---------------------------------------------------
+
+Step 1:
+https://downloads.apache.org/hbase/stable/
+cd /usr/local/hadoop-ecosystem/
+wget https://downloads.apache.org/hbase/stable/hbase-2.2.5-bin.tar.gz
+tar -xvf hbase-2.2.5-bin.tar.gz
+----------------------------------------------------------
+step 2:
+cd /usr/local/hadoop-ecosystem/hbase-2.2.5/conf/
+vi hbase-env.sh
+export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64
+export HBASE_REGIONSERVERS=/usr/local/hadoop-ecosystem/hbase-2.2.5/conf/regionservers
+export HBASE_MANAGES_ZK=true
+--------------------------------------------------------------------
+step 3:
+vi ~/.bashrc
+#Hbase path
+export HBASE_HOME=/usr/local/hadoop-ecosystem/hbase-2.2.5
+export PATH=$PATH:$HBASE_HOME/bin
+source ~/.bashrc
+
+----------------------------------------------------------------------------
+step 4:
+--------
+cd /usr/local/hadoop-ecosystem/hbase-2.2.5/conf/
+gedit hbase-site.xml
+delete first property and add the following properties:
+<property>
+<name>hbase.rootdir</name>
+<value>hdfs://localhost:9000/hbase</value>
+</property>
+<property>
+<name>hbase.cluster.distributed</name>
+<value>true</value>
+</property>
+<property>
+<name>hbase.zookeeper.quorum</name>
+<value>localhost</value>
+</property>
+<property>
+<name>dfs.replication</name>
+<value>1</value>
+</property>
+<property>
+<name>hbase.zookeeper.property.clientPort</name>
+<value>2181</value>
+</property>
+<property>
+<name>hbase.zookeeper.property.dataDir</name>
+<value>/usr/local/hadoop-ecosystem/hbase/zookeeper</value>
+</property>
+
+---------------------------------------------------------------------------
+step 5:
+--------
+Firts start these daemons: start-dfs.sh && start-yarn.sh
+mohammad@mohammad:~$ jps
+3106 NameNode
+3862 NodeManager
+3464 SecondaryNameNode
+3704 ResourceManager
+3898 Jps
+3261 DataNode
+
+start-hbase.sh
+mohammad@mohammad:~$ jps
+4609 HRegionServer
+3106 NameNode
+4470 HQuorumPeer
+3862 NodeManager
+4728 Jps
+3464 SecondaryNameNode
+3704 ResourceManager
+4525 HMaster
+3261 DataNode
+-----------------------------------------------------------------------
+step 6:
+----------
+hbase shell
+
+hbase(main):001:0> list
+TABLE                                                                                                                                  
+htab1                                                                                                                                  
+htab2                                                                                                                                  
+2 row(s)
+Took 4.2883 seconds                                                                                                                    
+=> ["htab1", "htab2"
+]
+---------------------------------------------------PRACTICE---------------------------------------
+hbase(main):004:0> put 'htab2', 101, 'cf2:branch', 'CSE'
+Took 0.2851 seconds                                                                                                                    
+hbase(main):005:0> scan 'htab2'
+ROW                                COLUMN+CELL                                                                                         
+ 101                               column=cf1:height, timestamp=1602684543038, value=5.9                                               
+ 101                               column=cf1:weight, timestamp=1602684575831, value=75                                                
+ 101                               column=cf2:branch, timestamp=1602696640171, value=CSE                                               
+1 row(s)
+Took 0.0445 seconds                                                                                                                    
+hbase(main):006:0> put 'htab2', 101, 'cf2:college', 'MIT'
+Took 0.0554 seconds                                                                                                                    
+hbase(main):007:0> scan 'htab2'
+ROW                                COLUMN+CELL                                                                                         
+ 101                               column=cf1:height, timestamp=1602684543038, value=5.9                                               
+ 101                               column=cf1:weight, timestamp=1602684575831, value=75                                                
+ 101                               column=cf2:branch, timestamp=1602696640171, value=CSE                                               
+ 101                               column=cf2:college, timestamp=1602696667789, value=MIT                                              
+1 row(s)
+Took 0.0562 seconds                                                                                                                    
+hbase(main):008:0> put 'htab2', 101, 'cf2:Address', 'BOSTON'
+Took 0.0295 seconds                                                                                                                    
+hbase(main):009:0> scan 'htab2'
+ROW                                COLUMN+CELL                                                                                         
+ 101                               column=cf1:height, timestamp=1602684543038, value=5.9                                               
+ 101                               column=cf1:weight, timestamp=1602684575831, value=75                                                
+ 101                               column=cf2:Address, timestamp=1602696698281, value=BOSTON                                           
+ 101                               column=cf2:branch, timestamp=1602696640171, value=CSE                                               
+ 101                               column=cf2:college, timestamp=1602696667789, value=MIT                                              
+1 row(s)
+Took 0.0881 seconds                                                                                                                    
+hbase(main):010:0> put 'htab2', 102, 'cf1:age', 31
+Took 0.0355 seconds                                                                                                                    
+hbase(main):011:0> put 'htab2', 102, 'cf1:height',5.6
+Took 0.0221 seconds                                                                                                                    
+hbase(main):012:0> put 'htab2', 102, 'cf1:wieght', 80
+Took 0.0387 seconds                                                                                                                    
+hbase(main):013:0> scan 'htab2'
+ROW                                COLUMN+CELL                                                                                         
+ 101                               column=cf1:height, timestamp=1602684543038, value=5.9                                               
+ 101                               column=cf1:weight, timestamp=1602684575831, value=75                                                
+ 101                               column=cf2:Address, timestamp=1602696698281, value=BOSTON                                           
+ 101                               column=cf2:branch, timestamp=1602696640171, value=CSE                                               
+ 101                               column=cf2:college, timestamp=1602696667789, value=MIT                                              
+ 102                               column=cf1:age, timestamp=1602696722426, value=31                                                   
+ 102                               column=cf1:height, timestamp=1602696742460, value=5.6                                               
+ 102                               column=cf1:wieght, timestamp=1602696760364, value=80                                                
+2 row(s)
+Took 0.1801 seconds                                                                                                                    
+hbase(main):014:0> put 'htab2', 102, 'cf1:city', 'London'
+Took 0.0273 seconds                                                                                                                    
+hbase(main):015:0> put 'htab2', 102, 'cf2:branch', 'ECE'
+Took 0.0372 seconds                                                                                                                    
+hbase(main):016:0> put 'htab2', 102, 'cf2:college', 'OXFORD'
+Took 0.0201 seconds                                                                                                                    
+hbase(main):017:0> put 'htab2', 102, 'cf2:Address', 'LONDON'
+Took 0.0319 seconds                                                                                                                    
+hbase(main):018:0> put 'htab2', 103, 'cf1:age', 35
+Took 0.0317 seconds                                                                                                                    
+hbase(main):019:0> put 'htab2', 103, 'cf1:height',6.1
+Took 0.0353 seconds                                                                                                                    
+hbase(main):020:0> put 'htab2', 103, 'cf1:branch', 'HARVARD'
+Took 0.0305 seconds                                                                                                                    
+hbase(main):021:0> put 'htab2', 103, 'cf2:branch', 'IT'
+Took 0.0592 seconds                                                                                                                    
+hbase(main):022:0> scan 'htab2'
+ROW                                COLUMN+CELL                                                                                         
+ 101                               column=cf1:height, timestamp=1602684543038, value=5.9                                               
+ 101                               column=cf1:weight, timestamp=1602684575831, value=75                                                
+ 101                               column=cf2:Address, timestamp=1602696698281, value=BOSTON                                           
+ 101                               column=cf2:branch, timestamp=1602696640171, value=CSE                                               
+ 101                               column=cf2:college, timestamp=1602696667789, value=MIT                                              
+ 102                               column=cf1:age, timestamp=1602696722426, value=31                                                   
+ 102                               column=cf1:city, timestamp=1602696799977, value=London                                              
+ 102                               column=cf1:height, timestamp=1602696742460, value=5.6                                               
+ 102                               column=cf1:wieght, timestamp=1602696760364, value=80                                                
+ 102                               column=cf2:Address, timestamp=1602696859174, value=LONDON                                           
+ 102                               column=cf2:branch, timestamp=1602696823301, value=ECE                                               
+ 102                               column=cf2:college, timestamp=1602696841960, value=OXFORD                                           
+ 103                               column=cf1:age, timestamp=1602696876100, value=35                                                   
+ 103                               column=cf1:branch, timestamp=1602696918551, value=HARVARD                                           
+ 103                               column=cf1:height, timestamp=1602696903151, value=6.1                                               
+ 103                               column=cf2:branch, timestamp=1602696979556, value=IT                                                
+3 row(s)
+
+
+-----------------------------------------------------SELECTING COLUMNS--------------------------
+
+1) select sing column from a particular column family (cf):
+hbase(main):023:0> scan 'htab2' ,{COLUMNS => 'cf1:age'}
+ROW                                COLUMN+CELL                                                                                         
+ 102                               column=cf1:age, timestamp=1602696722426, value=31                                                   
+ 103                               column=cf1:age, timestamp=1602696876100, value=35                                                   
+2 row(s)
+Took 0.1963 seconds
+------------------------------------------------------
+2) Selecting multiple columns from different cfs:
+hbase(main):024:0> scan 'htab2', {COLUMNS => ['cf1:age', 'cf2:branch']}
+ROW                                COLUMN+CELL                                                                                         
+ 101                               column=cf2:branch, timestamp=1602696640171, value=CSE                                               
+ 102                               column=cf1:age, timestamp=1602696722426, value=31                                                   
+ 102                               column=cf2:branch, timestamp=1602696823301, value=ECE                                               
+ 103                               column=cf1:age, timestamp=1602696876100, value=35                                                   
+ 103                               column=cf2:branch, timestamp=1602696979556, value=IT                                                
+3 row(s)
+Took 0.1798 seconds 
+--------------------------------------------------------
+3) To acquire random access:
+hbase(main):025:0> get 'htab2', 101
+COLUMN                             CELL                                                                                                
+ cf1:height                        timestamp=1602684543038, value=5.9                                                                  
+ cf1:weight                        timestamp=1602684575831, value=75                                                                   
+ cf2:Address                       timestamp=1602696698281, value=BOSTON                                                               
+ cf2:branch                        timestamp=1602696640171, value=CSE                                                                  
+ cf2:college                       timestamp=1602696667789, value=MIT                                                                  
+1 row(s)
+Took 0.2094 seconds  
+
+hbase(main):030:0> get 'htab2', 101, 'cf1'
+COLUMN                             CELL                                                                                                
+ cf1:height                        timestamp=1602684543038, value=5.9                                                                  
+ cf1:weight                        timestamp=1602684575831, value=75                                                                   
+1 row(s)
+Took 0.0556 seconds 
+
+hbase(main):031:0> get 'htab2', 101, ['cf1:age', 'cf2:branch']
+COLUMN                             CELL                                                                                                
+ cf2:branch                        timestamp=1602696640171, value=CSE                                                                  
+1 row(s)
+Took 0.0456 seconds 
+
+
+---------------UPDATING ----------
+create a table with column functions 'e' and 'd' and 
+table under column function 'e': 'name', 'sal', 'gen', 'dno'
+table under column function 'd': 'dname', 'loc'
+
+hbase(main):032:0> create 'hempdept1', 'e', 'd'
+Created table hempdept1
+Took 1.8504 seconds                                                                                                                    
+=> Hbase::Table - hempdept1
+hbase(main):033:0> put 'hempdept1' , '101', 'e:name', 'Miller'
+Took 0.0637 seconds                                                                                                                    
+hbase(main):034:0> put 'hempdept1' , '101', 'e:sal', 10000
+Took 0.0344 seconds                                                                                                                    
+hbase(main):035:0> put 'hempdept1' , '101', 'e:gen', 'm'
+Took 0.0400 seconds                                                                                                                    
+hbase(main):036:0> put 'hempdept1' , '101', 'e:dno', 11
+Took 0.0271 seconds                                                                                                                    
+hbase(main):037:0> put 'hempdept1' , '101', 'd:name','mrkt'
+Took 0.0450 seconds                                                                                                                    
+hbase(main):038:0> put 'hempdept1' , '101', 'd:loc','MA'
+Took 0.0245 seconds                                                                                                                    
+hbase(main):039:0> scan 'hempdept1'
+ROW                                COLUMN+CELL                                                                                         
+ 101                               column=d:loc, timestamp=1602701452653, value=MA                                                     
+ 101                               column=d:name, timestamp=1602701439127, value=mrkt                                                  
+ 101                               column=e:dno, timestamp=1602701407774, value=11                                                     
+ 101                               column=e:gen, timestamp=1602701394111, value=m                                                      
+ 101                               column=e:name, timestamp=1602701365473, value=Miller                                                
+ 101                               column=e:sal, timestamp=1602701383273, value=10000                      
+
+UPDATING A RECORD:
+hbase(main):040:0> put 'hempdept1' ,'101', 'e:age', 45
+Took 0.0400 seconds                                                                                                                    
+hbase(main):041:0> scan 'hempdept1'
+ROW                                COLUMN+CELL                                                                                         
+ 101                               column=d:loc, timestamp=1602701452653, value=MA                                                     
+ 101                               column=d:name, timestamp=1602701439127, value=mrkt                                                  
+ 101                               column=e:age, timestamp=1602701727382, value=45  
+
+
+--------Delete:
+hbase(main):042:0> delete 'htab2' , 103, 'cf2:college'
+Took 0.0502 seconds  
+
+---Deleting a row key:
+    To delete a row key, first we need to delete all the column families ,then automatically row key is deleted
+    To delete column families first delete its columns   
